@@ -1,0 +1,172 @@
+@import 'react-day-picker/style.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #0A0A0A;
+  color: #FFFFFF;
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+* { box-sizing: border-box; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #111; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+.glass {
+  background: rgba(17, 17, 17, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.input-dark {
+  background: #1A1A1A;
+  border: 1px solid #333;
+  color: #fff;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+}
+.input-dark:focus { border-color: #666; }
+.input-dark::placeholder { color: #555; }
+
+.btn-primary {
+  background: #fff;
+  color: #000;
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.08em;
+  font-size: 1.1rem;
+  padding: 0.875rem 2rem;
+  border-radius: 0.75rem;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  width: 100%;
+}
+.btn-primary:hover { opacity: 0.9; }
+.btn-primary:active { transform: scale(0.98); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-ghost {
+  background: transparent;
+  color: #888;
+  border: 1px solid #333;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+.btn-ghost:hover { border-color: #555; color: #ccc; }
+
+.swipe-card { touch-action: none; user-select: none; cursor: grab; }
+.swipe-card:active { cursor: grabbing; }
+
+.category-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stat-card {
+  background: #1A1A1A;
+  border: 1px solid #2A2A2A;
+  border-radius: 1rem;
+  padding: 1.25rem;
+}
+
+.section-heading {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.1em;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+@keyframes rippleOut {
+  0% { transform: scale(0); opacity: 0.6; }
+  100% { transform: scale(6); opacity: 0; }
+}
+.ripple-anim { animation: rippleOut 0.7s ease-out forwards; }
+
+/* ── Dark Theme CSS Variables (shadcn/radix) ────────────────────────────── */
+:root {
+  --background: 10 10 10;
+  --foreground: 255 255 255;
+  --muted: 26 26 26;
+  --muted-foreground: 100 100 100;
+  --popover: 17 17 17;
+  --popover-foreground: 255 255 255;
+  --border: 42 42 42;
+  --input: 26 26 26;
+  --primary: 255 255 255;
+  --primary-foreground: 0 0 0;
+  --accent: 42 42 42;
+  --accent-foreground: 255 255 255;
+  --ring: 255 255 255;
+  --radius: 0.75rem;
+}
+
+/* react-day-picker v9 reset */
+.rdp-root {
+  --rdp-accent-color: #fff;
+  --rdp-background-color: rgba(255,255,255,0.1);
+}
+
+/* ── Modern Retro Button ─────────────────────────────────────────────────── */
+:root {
+  --modern-retro-button-text-default: #f7f7ff;
+  --modern-retro-button-text-hover: #111118;
+  --modern-retro-button-background: #181a29;
+  --modern-retro-button-box-shadow: 0 0 0 0 #0763f7;
+  --modern-retro-button-box-shadow-hover: 0 0 20px 2px #0763f7;
+  --modern-retro-button-svg-rect: #76b3fa;
+  --modern-retro-button-svg-rect-flicker: #0c79f7;
+}
+
+.retro-button {
+  cursor: pointer;
+  display: flex;
+  font-weight: 500;
+  font-style: italic;
+  align-items: center;
+  justify-content: center;
+  font-family: 'IBM Plex Mono', monospace;
+  height: 50px;
+  padding: 0 30px;
+  border-radius: 15px;
+  outline: none;
+  border: none;
+  transform: skew(-15deg);
+  overflow: hidden;
+  transition: transform 350ms, box-shadow 350ms;
+  min-width: 200px;
+}
+.retro-button:hover {
+  transform: scale(1.05) skew(-15deg);
+}
+.retro-button span {
+  transition: color 350ms;
+}
