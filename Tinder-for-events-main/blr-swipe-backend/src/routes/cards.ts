@@ -1,5 +1,5 @@
 import { Router, Response } from 'express';
-import Event from '../models/Card';
+import Event, { AgeRating } from '../models/Card';
 import Swipe from '../models/Swipe';
 import User from '../models/User';
 import { requireAuth, AuthRequest } from '../middleware/auth';
@@ -17,7 +17,7 @@ router.get('/', requireAuth, async (req: AuthRequest, res: Response) => {
 
     // Build age filter (enforce server-side — never trust client)
     const userAge = user.verified_age || 0;
-    let allowedRatings: string[] = ['ALL_AGES'];
+    let allowedRatings: AgeRating[] = ['ALL_AGES'];
     if (userAge >= 21) allowedRatings = ['ALL_AGES', '13+', '18+', '21+'];
     else if (userAge >= 18) allowedRatings = ['ALL_AGES', '13+', '18+'];
     else if (userAge >= 13) allowedRatings = ['ALL_AGES', '13+'];
