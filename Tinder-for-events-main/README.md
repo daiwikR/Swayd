@@ -207,7 +207,7 @@ Typography: **Bebas Neue** for display, **DM Sans** for body, **IBM Plex Mono** 
 
 The repo is set up as **one Vercel project** serving both the static frontend and the Express API (wrapped as a serverless function in `api/index.ts`). Same origin — no CORS or cross-site cookie issues.
 
-1. In the Vercel dashboard, create a project from this repo and set **Root Directory** to `Tinder-for-events-main`. `vercel.json` handles the rest (build, SPA rewrites, `/api/*` routing, 6-hourly scraper cron).
+1. In the Vercel dashboard, create a project from this repo and set **Root Directory** to `Tinder-for-events-main`. `vercel.json` handles the rest (build, SPA rewrites, `/api/*` routing, daily scraper cron — Vercel's Hobby plan allows once-per-day crons).
 2. Set these **Environment Variables** in the project settings:
 
 | Variable | Value |

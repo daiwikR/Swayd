@@ -49,7 +49,8 @@ app.use(async (_req, res, next) => {
 app.get('/health', (_req, res) => res.json({ ok: true }));
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
-// Vercel Cron hits this every 6h (see vercel.json). Vercel automatically sends
+// Vercel Cron hits this daily (see vercel.json — Hobby plan allows once/day).
+// Vercel automatically sends
 // "Authorization: Bearer <CRON_SECRET>" when the CRON_SECRET env var is set.
 app.get('/api/cron/scrape', async (req, res) => {
   const secret = process.env.CRON_SECRET;
