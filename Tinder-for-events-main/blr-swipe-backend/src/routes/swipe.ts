@@ -3,22 +3,19 @@ import Swipe from '../models/Swipe';
 import Event from '../models/Card';
 import User from '../models/User';
 import { requireAuth, AuthRequest } from '../middleware/auth';
+import { nudgePreference, swipeLearningRate, PREF_MAX, PREF_MIN } from '../utils/preferences';
 
 const router = Router();
 
-const PREF_RIGHT_DELTA = 0.1;
-const PREF_LEFT_DELTA = -0.05;
-const PREF_MAX = 2.0;
-const PREF_MIN = 0.0;
-
 router.post('/', requireAuth, async (req: AuthRequest, res: Response) => {
   try {
-    const { eventId, direction } = req.body || {};
+    const { eventId, direction, dwell_ms } = req.body || {};
     if (!eventId || !['left', 'right'].includes(direction)) {
       return res.status(400).json({ error: 'Invalid payload: need eventId and direction (left/right)' });
     }
 
     const userId = req.userId!;
+    const dwellMs = Number.isFinite(Number(dwell_ms)) ? Number(dwell_ms) : undefined;
 
     // Check event exists
     const event = await Event.findById(eventId);
@@ -34,12 +31,13 @@ router.post('/', requireAuth, async (req: AuthRequest, res: Response) => {
           $inc: existing.direction === 'right' ? { like_count: -1 } : { dislike_count: -1 }
         });
         existing.direction = direction;
+        if (dwellMs !== undefined) existing.dwell_ms = dwellMs;
         await existing.save();
       } else {
         return res.json({ ok: true, message: 'Already swiped' });
       }
     } else {
-      await Swipe.create({ user_id: userId, event_id: eventId, direction });
+      await Swipe.create({ user_id: userId, event_id: eventId, direction, dwell_ms: dwellMs ?? 0 });
     }
 
     // Update event count
@@ -47,15 +45,13 @@ router.post('/', requireAuth, async (req: AuthRequest, res: Response) => {
       $inc: direction === 'right' ? { like_count: 1 } : { dislike_count: 1 }
     });
 
-    // Update user preference vector
+    // Update user preference vector — EMA toward like (2.0) or dislike (0.0),
+    // with the learning rate scaled by how long the user considered the card.
     const user = await User.findById(userId);
     if (user && event.category) {
-      const pv: Map<string, number> = user.preference_vector || new Map();
-      const current = pv.get(event.category) || 0;
-      const delta = direction === 'right' ? PREF_RIGHT_DELTA : PREF_LEFT_DELTA;
-      const updated = Math.min(PREF_MAX, Math.max(PREF_MIN, current + delta));
-      pv.set(event.category, updated);
-      user.preference_vector = pv;
+      const target = direction === 'right' ? PREF_MAX : PREF_MIN;
+      const alpha = swipeLearningRate(direction, dwellMs);
+      nudgePreference(user, event.category, target, alpha);
       await user.save();
     }
 

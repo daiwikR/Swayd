@@ -1,0 +1,29 @@
+{
+  "name": "blr-swipe",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "npm install --prefix blr-swipe-frontend && npm run build --prefix blr-swipe-frontend",
+    "dev:backend": "npm run dev --prefix blr-swipe-backend",
+    "dev:frontend": "npm run dev --prefix blr-swipe-frontend"
+  },
+  "dependencies": {
+    "axios": "^1.13.6",
+    "bcryptjs": "^3.0.3",
+    "cheerio": "^1.2.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.2.3"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^25.3.3",
+    "typescript": "^5.9.3"
+  }
+}

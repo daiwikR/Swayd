@@ -13,9 +13,18 @@ async function startInMemory(): Promise<string> {
 
 async function getWorkingUri(): Promise<string> {
   const configured = process.env.MONGODB_URI;
+  const isLocalUri = !configured || configured.includes('localhost') || configured.includes('127.0.0.1');
+
+  // Serverless (Vercel): a real cluster URI is mandatory — there is no local
+  // or in-memory MongoDB, and each invocation would lose in-memory data anyway.
+  if (process.env.VERCEL && isLocalUri) {
+    throw new Error(
+      '[DB] Set MONGODB_URI to a reachable cluster (e.g. MongoDB Atlas) in your Vercel project env vars.'
+    );
+  }
 
   // Atlas or custom URI — use directly
-  if (configured && !configured.includes('localhost') && !configured.includes('127.0.0.1')) {
+  if (configured && !isLocalUri) {
     return configured;
   }
 
@@ -31,7 +40,7 @@ async function getWorkingUri(): Promise<string> {
     }
   }
 
-  // Fall back to in-memory MongoDB
+  // Fall back to in-memory MongoDB (local dev only)
   const uri = await startInMemory();
   console.log('[DB] Using in-memory MongoDB (data resets on restart)');
   return uri;

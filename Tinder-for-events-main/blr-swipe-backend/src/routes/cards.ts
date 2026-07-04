@@ -25,37 +25,67 @@ router.get('/', requireAuth, async (req: AuthRequest, res: Response) => {
     // Get already-swiped event IDs
     const swipedIds = await Swipe.find({ user_id: userId }).distinct('event_id');
 
-    // Fetch candidate events (unseen, age-appropriate, active)
+    // Fetch candidate events (unseen, age-appropriate, active, not in the past)
+    const now = new Date();
     const events = await Event.find({
       age_rating: { $in: allowedRatings },
       _id: { $nin: swipedIds },
-      is_active: true
+      is_active: true,
+      $or: [{ datetime: { $gte: now } }, { datetime: null }, { datetime: { $exists: false } }]
     })
       .sort({ createdAt: -1 })
       .limit(limit * 3)
       .lean();
 
-    // Score by preference vector
     const prefVector: Record<string, number> = Object.fromEntries(user.preference_vector || new Map());
     const hasPrefs = Object.keys(prefVector).length > 0;
+    const timePref = user.preferences?.time || 'both';
 
-    const scored = events.map(ev => ({
-      ...ev,
-      _score: hasPrefs ? (prefVector[ev.category] || 0) : 0
-    }));
+    // Blended score per event:
+    //   pref     — personal category affinity learned from swipes/RSVPs (0..1)
+    //   quality  — Bayesian-smoothed like ratio across ALL users (lightweight
+    //              collaborative signal; prior of 0.5 so new events aren't buried)
+    //   urgency  — events happening soon surface first (2-week half-life-ish decay)
+    //   schedule — matches the user's weekday/weekend onboarding preference
+    const scored = events.map(ev => {
+      const pref = (prefVector[ev.category] ?? 0) / 2;
 
-    if (hasPrefs) scored.sort((a, b) => b._score - a._score);
+      const likes = ev.like_count || 0;
+      const dislikes = ev.dislike_count || 0;
+      const quality = (likes + 3) / (likes + dislikes + 6);
 
-    // Exploration: 85% preference-ranked + 15% random discovery from low-affinity categories
+      let urgency = 0.5;
+      if (ev.datetime) {
+        const days = (new Date(ev.datetime).getTime() - now.getTime()) / 86400000;
+        urgency = days <= 0 ? 0.2 : Math.exp(-days / 14);
+      }
+
+      let schedule = 0.5;
+      if (ev.datetime && timePref !== 'both') {
+        const day = new Date(ev.datetime).getDay();
+        const isWeekend = day === 0 || day === 6;
+        schedule = (timePref === 'weekends') === isWeekend ? 1 : 0;
+      }
+
+      const _score = hasPrefs
+        ? 0.55 * pref + 0.2 * quality + 0.15 * urgency + 0.1 * schedule
+        : 0.5 * quality + 0.35 * urgency + 0.15 * schedule; // cold start: popularity + urgency
+
+      return { ...ev, _score, _prefWeight: prefVector[ev.category] ?? 0 };
+    });
+
+    scored.sort((a, b) => b._score - a._score);
+
+    // Exploration: 85% ranked + 15% random discovery from low-affinity categories
     const mainCount = Math.ceil(limit * 0.85);
     const explorationCount = limit - mainCount;
 
     const mainCards = scored.slice(0, mainCount);
 
-    // Pick exploration cards from low-affinity categories (score < 0.5) not already in mainCards
+    // Pick exploration cards from low-affinity categories not already in mainCards
     const mainIds = new Set(mainCards.map(e => String(e._id)));
     const explorationPool = scored.filter(e =>
-      !mainIds.has(String(e._id)) && (prefVector[e.category] || 0) < 0.5
+      !mainIds.has(String(e._id)) && e._prefWeight < 0.5
     );
     // Shuffle exploration pool
     for (let i = explorationPool.length - 1; i > 0; i--) {
@@ -91,7 +121,7 @@ router.get('/', requireAuth, async (req: AuthRequest, res: Response) => {
       source: ev.source || 'manual',
       rsvp_enabled: ev.rsvp_enabled || false,
       rsvp_form: ev.rsvp_form || [],
-      is_recommended: ev._score > 1.2
+      is_recommended: ev._prefWeight > 1.2 || ev._score > 0.72
     }));
 
     res.json({ cards: result });
