@@ -1,9 +1,24 @@
 import { Router, Response } from 'express';
 import Event from '../models/Card';
 import RSVP from '../models/RSVP';
+import User from '../models/User';
 import { requireAuth, AuthRequest } from '../middleware/auth';
+import { nudgePreference, RSVP_ALPHA, RSVP_CANCEL_ALPHA, PREF_MAX, PREF_MIN } from '../utils/preferences';
 
 const router = Router();
+
+/** RSVPing is the strongest "I want this" signal — feed it into the preference vector. */
+async function boostPreference(userId: string | undefined, category: string | undefined, target: number, alpha: number) {
+  if (!userId || !category) return;
+  try {
+    const user = await User.findById(userId);
+    if (!user) return;
+    nudgePreference(user, category, target, alpha);
+    await user.save();
+  } catch (err) {
+    console.error('RSVP preference update failed:', err);
+  }
+}
 
 /** Generate a random 6-char alphanumeric seat code */
 function genSeatCode(): string {
@@ -44,6 +59,7 @@ router.post('/', requireAuth, async (req: AuthRequest, res: Response) => {
       existing.answers = answers || {} as Record<string, string>;
       existing.markModified('answers');
       await existing.save();
+      await boostPreference(req.userId, event.category, PREF_MAX, RSVP_ALPHA);
       return res.json({ ok: true, rsvp: existing, seat_code: existing.seat_code });
     }
 
@@ -55,6 +71,8 @@ router.post('/', requireAuth, async (req: AuthRequest, res: Response) => {
       seat_code,
       status: 'confirmed',
     });
+
+    await boostPreference(req.userId, event.category, PREF_MAX, RSVP_ALPHA);
 
     res.json({ ok: true, rsvp, seat_code });
   } catch (err: unknown) {
@@ -115,6 +133,11 @@ router.delete('/:rsvpId', requireAuth, async (req: AuthRequest, res: Response) =
     }
     rsvp.status = 'cancelled';
     await rsvp.save();
+
+    // Mild negative signal — user backed out of attending
+    const event = await Event.findById(rsvp.event_id);
+    await boostPreference(req.userId, event?.category, PREF_MIN, RSVP_CANCEL_ALPHA);
+
     res.json({ ok: true });
   } catch {
     res.status(500).json({ error: 'Server error' });

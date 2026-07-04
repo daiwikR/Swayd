@@ -4,6 +4,7 @@ export interface ISwipe extends Document {
   user_id: Types.ObjectId;
   event_id: Types.ObjectId;
   direction: 'left' | 'right';
+  dwell_ms: number;
   timestamp: Date;
 }
 
@@ -11,6 +12,7 @@ const SwipeSchema = new Schema<ISwipe>({
   user_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   event_id: { type: Schema.Types.ObjectId, ref: 'Event', required: true },
   direction: { type: String, enum: ['left', 'right'], required: true },
+  dwell_ms: { type: Number, default: 0 },
   timestamp: { type: Date, default: Date.now }
 });
 

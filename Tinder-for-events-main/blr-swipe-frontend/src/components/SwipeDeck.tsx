@@ -95,8 +95,14 @@ export default function SwipeDeck({ initialCards, onSwipe }: Props) {
   const [ripple, setRipple] = useState<{ dir: 'left' | 'right' } | null>(null);
   const [rsvpCard, setRsvpCard] = useState<CardType | null>(null);
   const rippleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // When the current top card appeared — dwell time is an interaction-strength
+  // signal for the recommender (long look + like = strong, instant flick = strong no)
+  const topSince = useRef<number>(Date.now());
 
   const handleSwiped = async (dir: 'left' | 'right', card: CardType) => {
+    const dwell_ms = Date.now() - topSince.current;
+    topSince.current = Date.now();
+
     setCards(prev => prev.filter(c => c._id !== card._id));
     onSwipe?.(dir, card);
 
@@ -108,7 +114,7 @@ export default function SwipeDeck({ initialCards, onSwipe }: Props) {
     }
 
     try {
-      await api.post('/api/swipe', { eventId: card._id, direction: dir });
+      await api.post('/api/swipe', { eventId: card._id, direction: dir, dwell_ms });
 
       // Trigger RSVP modal after right swipe on RSVP-enabled events
       if (dir === 'right' && card.rsvp_enabled) {

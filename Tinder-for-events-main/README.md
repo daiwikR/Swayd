@@ -142,12 +142,31 @@ Frontend runs at `http://localhost:5173`.
 
 ## How Recommendations Work
 
-Each user has a `preference_vector` — a map from event category to a weight (0.0–2.0).
+Each user has a `preference_vector` — a map from event category to a weight (0.0–2.0), seeded at 1.0 for onboarding picks.
 
-- **Right swipe** → category weight `+0.1` (cap: 2.0)
-- **Left swipe** → category weight `−0.05` (floor: 0.0)
+**Learning (exponential moving average, recency-weighted):** every interaction moves the category weight toward a target with a learning rate `α` scaled by interaction strength:
 
-The event feed is ranked by matching the event's category against the user's weights. Events with a score above `1.2` receive a **FOR YOU** badge.
+| Signal | Target | α |
+|---|---|---|
+| Right swipe | 2.0 | 0.08–0.15 (higher with longer dwell time on the card) |
+| Left swipe | 0.0 | 0.04–0.07 (higher for instant flicks — confident rejection) |
+| RSVP | 2.0 | 0.25 (strongest intent signal) |
+| RSVP cancel | 0.0 | 0.08 |
+
+The frontend sends `dwell_ms` (how long the card was on top) with every swipe.
+
+**Ranking:** the feed blends four signals — past events are excluded:
+
+```
+score = 0.55·preference + 0.20·quality + 0.15·urgency + 0.10·schedule
+```
+
+- `preference` — the user's learned category weight (normalized)
+- `quality` — Bayesian-smoothed like ratio across all users (collaborative signal; prior 0.5 so new events aren't buried)
+- `urgency` — events happening sooner rank higher (≈2-week decay)
+- `schedule` — matches the user's weekday/weekend onboarding preference
+
+Cold start (no swipes yet) ranks by quality + urgency. 15% of each feed is random exploration from low-affinity categories, interleaved every ~6 cards. High-affinity events get a **FOR YOU** badge.
 
 ---
 
@@ -181,6 +200,25 @@ The UI uses a dark base (`#0A0A0A`) with per-category neon accent colors:
 | Networking | `#118AB2` dark blue |
 
 Typography: **Bebas Neue** for display, **DM Sans** for body, **IBM Plex Mono** for code.
+
+---
+
+## Deploying to Vercel
+
+The repo is set up as **one Vercel project** serving both the static frontend and the Express API (wrapped as a serverless function in `api/index.ts`). Same origin — no CORS or cross-site cookie issues.
+
+1. In the Vercel dashboard, create a project from this repo and set **Root Directory** to `Tinder-for-events-main`. `vercel.json` handles the rest (build, SPA rewrites, `/api/*` routing, 6-hourly scraper cron).
+2. Set these **Environment Variables** in the project settings:
+
+| Variable | Value |
+|---|---|
+| `MONGODB_URI` | A MongoDB **Atlas** connection string (required — no in-memory fallback on Vercel) |
+| `JWT_SECRET` | A long random string |
+| `CRON_SECRET` | A long random string (protects `/api/cron/scrape`; Vercel sends it automatically) |
+
+3. Deploy. The frontend needs no `VITE_API_BASE` — production builds call the same origin.
+
+> ⚠️ Don't deploy a locally built `dist/` (drag-and-drop or `vercel --prod` of the folder) — a local `.env` can bake `localhost` URLs into the bundle. Always let Vercel build from source.
 
 ---
 
