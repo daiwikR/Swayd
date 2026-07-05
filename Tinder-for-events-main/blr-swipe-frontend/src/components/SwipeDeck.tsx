@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { X, Heart, CalendarX2 } from 'lucide-react';
 import { motion, useMotionValue, useTransform, animate, type PanInfo } from 'framer-motion';
 import EventCard from './EventCard';
 import type { CardType } from '../types';
@@ -133,9 +134,9 @@ export default function SwipeDeck({ initialCards, onSwipe }: Props) {
   if (cards.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-[560px] gap-4 text-center px-4">
-        <div className="text-5xl">✨</div>
+        <CalendarX2 size={36} strokeWidth={1.5} className="text-gray-600" />
         <p className="font-display text-3xl tracking-wider text-white">ALL CAUGHT UP</p>
-        <p className="text-sm text-gray-600">No more events right now. Check back soon!</p>
+        <p className="text-sm text-gray-600">No more events right now. Check back soon.</p>
       </div>
     );
   }
@@ -171,28 +172,24 @@ export default function SwipeDeck({ initialCards, onSwipe }: Props) {
           })}
         </div>
 
-        {/* Action buttons */}
+        {/* Action buttons: skip is quiet, like is the stark primary */}
         <div className="flex items-center justify-center gap-5 mt-6">
           <button
             onClick={() => handleButton('left')}
-            className="w-14 h-14 rounded-full flex items-center justify-center text-xl transition-all hover:scale-110 active:scale-95"
-            style={{ background: '#1A1A1A', border: '2px solid #FF2D78', color: '#FF2D78', boxShadow: '0 0 0 0 rgba(255,45,120,0)' }}
-            onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 0 16px rgba(255,45,120,0.4)')}
-            onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 0 0 0 rgba(255,45,120,0)')}
-            aria-label="Dislike"
+            className="w-14 h-14 rounded-full flex items-center justify-center transition-transform hover:scale-105 active:scale-95"
+            style={{ background: '#161616', border: '1px solid #2E2E2E', color: '#9CA3AF' }}
+            aria-label="Skip"
           >
-            ✕
+            <X size={22} strokeWidth={2} />
           </button>
-          <div className="text-xs text-gray-600">{cards.length} events</div>
+          <div className="text-xs text-gray-600 tabular-nums w-16 text-center">{cards.length} events</div>
           <button
             onClick={() => handleButton('right')}
-            className="w-14 h-14 rounded-full flex items-center justify-center text-xl transition-all hover:scale-110 active:scale-95"
-            style={{ background: '#1A1A1A', border: '2px solid #39FF14', color: '#39FF14' }}
-            onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 0 16px rgba(57,255,20,0.4)')}
-            onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 0 0 0 rgba(57,255,20,0)')}
+            className="w-14 h-14 rounded-full flex items-center justify-center transition-transform hover:scale-105 active:scale-95"
+            style={{ background: '#fff', color: '#000' }}
             aria-label="Like"
           >
-            ♡
+            <Heart size={22} strokeWidth={2} fill="currentColor" />
           </button>
         </div>
       </div>

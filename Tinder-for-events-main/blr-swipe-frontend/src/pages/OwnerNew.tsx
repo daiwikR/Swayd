@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { ClipboardList, X } from 'lucide-react';
 import api from '../api';
 import { CATEGORY_CONFIG, type EventCategory, type AgeRating } from '../types';
 import toast from 'react-hot-toast';
@@ -8,10 +9,10 @@ import { GlassCard, GlassEffect } from '../components/ui/liquid-glass';
 const CATEGORIES = Object.keys(CATEGORY_CONFIG) as EventCategory[];
 
 const AGE_RATING_OPTIONS: { value: AgeRating; label: string; desc: string; color: string }[] = [
-  { value: 'ALL_AGES', label: '🟢 Everyone',     desc: 'Open to all ages',                color: '#06D6A0' },
-  { value: '13+',      label: '🟡 Teens & Up',   desc: 'Suitable for 13+',               color: '#FFD166' },
-  { value: '18+',      label: '🔴 Adults Only',  desc: 'Hidden from users under 18',     color: '#EF476F' },
-  { value: '21+',      label: '🔵 21+ Only',     desc: 'Restricted to 21+ users',        color: '#118AB2' },
+  { value: 'ALL_AGES', label: 'Everyone',     desc: 'Open to all ages',                color: '#06D6A0' },
+  { value: '13+',      label: 'Teens & Up',   desc: 'Suitable for 13+',               color: '#FFD166' },
+  { value: '18+',      label: 'Adults Only',  desc: 'Hidden from users under 18',     color: '#EF476F' },
+  { value: '21+',      label: '21+ Only',     desc: 'Restricted to 21+ users',        color: '#118AB2' },
 ];
 
 interface Event {
@@ -171,7 +172,7 @@ export default function OwnerNew() {
           {/* Event list */}
           {events.length === 0 ? (
             <div className="text-center py-16 text-gray-600">
-              <p className="text-4xl mb-3">📋</p>
+              <ClipboardList size={32} strokeWidth={1.5} className="mx-auto mb-3 text-gray-600" />
               <p className="text-sm">No events yet. Create your first one!</p>
             </div>
           ) : (
@@ -188,7 +189,7 @@ export default function OwnerNew() {
                           <div className="flex items-center gap-2 flex-wrap mb-1">
                             <span className="text-sm font-semibold text-white truncate">{ev.title}</span>
                             <span className="category-pill text-xs" style={{ background: cat.bg, color: cat.color }}>
-                              {cat.emoji} {cat.label}
+                              {cat.label}
                             </span>
                             <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: `${ratingColor}22`, color: ratingColor, border: `1px solid ${ratingColor}44` }}>
                               {ev.age_rating}
@@ -204,7 +205,7 @@ export default function OwnerNew() {
                             {expired ? ' · ⏰ Expired' : ''}
                           </div>
                           <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                            <span style={{ color: '#39FF14' }}>♡ {ev.like_count} likes</span>
+                            <span style={{ color: '#39FF14' }}>{ev.like_count} likes</span>
                             <span className={ev.is_active ? 'text-green-400' : 'text-gray-600'}>
                               {ev.is_active ? '● Active' : '○ Inactive'}
                             </span>
@@ -262,7 +263,7 @@ export default function OwnerNew() {
                       backdropFilter: 'blur(4px)',
                     }}
                   >
-                    {cfg.emoji} {cfg.label}
+                    {cfg.label}
                   </button>
                 );
               })}
@@ -295,7 +296,7 @@ export default function OwnerNew() {
               ))}
             </div>
             {form.age_rating === '18+' && (
-              <p className="text-xs text-orange-400 mt-2">⚠️ Users under 18 will not see this event in their feed</p>
+              <p className="text-xs text-orange-400 mt-2">Users under 18 will not see this event in their feed</p>
             )}
           </div>
 
@@ -374,7 +375,7 @@ export default function OwnerNew() {
                 <div className="mt-4 space-y-3">
                   <p className="text-xs text-gray-500 uppercase tracking-widest">Custom Questions</p>
                   <p className="text-xs text-gray-600">
-                    ⚠️ Do not ask for personal data (phone, ID, address). Those will be filtered automatically.
+                    Do not ask for personal data (phone, ID, address). Those will be filtered automatically.
                   </p>
 
                   {rsvpQuestions.map((q, idx) => (
@@ -401,7 +402,7 @@ export default function OwnerNew() {
                         onClick={() => removeQuestion(idx)}
                         className="text-gray-600 hover:text-red-400 transition-colors px-2 py-2 text-sm"
                       >
-                        ✕
+                        <X size={14} strokeWidth={2} />
                       </button>
                     </div>
                   ))}

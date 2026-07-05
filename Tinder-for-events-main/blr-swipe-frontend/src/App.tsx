@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Toaster } from 'react-hot-toast';
+import { Compass, CalendarDays, CircleUser, LayoutGrid, ShieldCheck, type LucideIcon } from 'lucide-react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -16,16 +17,17 @@ import './App.css';
 
 type Tab = 'home' | 'upcoming' | 'profile' | 'dashboard' | 'admin';
 
-function NavIcon({ active, onClick, icon, label }: {
-  active: boolean; onClick: () => void; icon: string; label: string;
+function NavIcon({ active, onClick, icon: Icon, label }: {
+  active: boolean; onClick: () => void; icon: LucideIcon; label: string;
 }) {
   return (
     <button
       onClick={onClick}
       className="flex flex-col items-center gap-1 transition-colors py-2 px-4"
       style={{ color: active ? '#fff' : '#555' }}
+      aria-label={label}
     >
-      <span className="text-xl">{icon}</span>
+      <Icon size={20} strokeWidth={active ? 2 : 1.75} />
       <span className="text-[10px] uppercase tracking-wider font-semibold">{label}</span>
     </button>
   );
@@ -70,15 +72,6 @@ function AppInner() {
       {/* Subtle dot pattern background */}
       <BGPattern variant="dots" color="rgba(255,255,255,0.03)" size={28} fade={false} />
 
-      {/* Ambient glow */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-0"
-        style={{
-          background: 'radial-gradient(ellipse 70% 50% at 50% 80%, rgba(255,45,120,0.05) 0%, transparent 70%)',
-        }}
-      />
-
       <main className="relative z-10 mx-auto" style={{ maxWidth: 420 }}>
         {/* Seeker discover feed */}
         {tab === 'home' && !isLister && !isAdmin && <Home />}
@@ -118,7 +111,7 @@ function AppInner() {
           <NavIcon
             active={tab === 'home'}
             onClick={() => setTab('home')}
-            icon="🔥"
+            icon={Compass}
             label="Discover"
           />
         )}
@@ -128,7 +121,7 @@ function AppInner() {
           <NavIcon
             active={tab === 'home' || tab === 'dashboard'}
             onClick={() => setTab('dashboard')}
-            icon="📋"
+            icon={LayoutGrid}
             label="Dashboard"
           />
         )}
@@ -138,7 +131,7 @@ function AppInner() {
           <NavIcon
             active={tab === 'home' || tab === 'admin'}
             onClick={() => setTab('admin')}
-            icon="⚙️"
+            icon={ShieldCheck}
             label="Admin"
           />
         )}
@@ -148,7 +141,7 @@ function AppInner() {
           <NavIcon
             active={tab === 'upcoming'}
             onClick={() => setTab('upcoming')}
-            icon="📅"
+            icon={CalendarDays}
             label="Upcoming"
           />
         )}
@@ -162,7 +155,7 @@ function AppInner() {
         <NavIcon
           active={tab === 'profile'}
           onClick={() => setTab('profile')}
-          icon="👤"
+          icon={CircleUser}
           label="Profile"
         />
       </nav>

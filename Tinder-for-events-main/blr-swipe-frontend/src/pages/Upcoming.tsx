@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { CalendarDays, MapPin, CalendarX2, Check } from 'lucide-react';
 import type { CardType } from '../types';
 import { CATEGORY_CONFIG } from '../types';
 import api from '../api';
@@ -58,7 +59,7 @@ function UpcomingCard({
               className="text-xs font-semibold px-2 py-0.5 rounded-full"
               style={{ background: cfg.bg, color: cfg.color }}
             >
-              {cfg.emoji} {cfg.label}
+              {cfg.label}
             </span>
             {price && (
               <span
@@ -73,7 +74,7 @@ function UpcomingCard({
             )}
             {rsvp && rsvp.status === 'confirmed' && (
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(57,255,20,0.12)', color: '#39FF14' }}>
-                ✓ RSVP&apos;d
+                <Check size={12} strokeWidth={2.5} className="inline -mt-0.5" /> RSVP&apos;d
               </span>
             )}
           </div>
@@ -83,8 +84,8 @@ function UpcomingCard({
 
           {/* Date + location */}
           <div className="text-xs text-gray-500 space-y-0.5">
-            {date && <div>🗓 {date}{time ? ` at ${time}` : ''}</div>}
-            {card.location && <div>📍 {card.location}</div>}
+            {date && <div className="flex items-center gap-1.5"><CalendarDays size={13} strokeWidth={1.75} className="text-gray-500 flex-shrink-0" />{date}{time ? ` at ${time}` : ''}</div>}
+            {card.location && <div className="flex items-center gap-1.5"><MapPin size={13} strokeWidth={1.75} className="text-gray-500 flex-shrink-0" />{card.location}</div>}
           </div>
 
           {/* Actions */}
@@ -161,7 +162,7 @@ export default function Upcoming() {
 
       {sorted.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
-          <div className="text-5xl">📅</div>
+          <CalendarX2 size={36} strokeWidth={1.5} className="text-gray-600" />
           <p className="font-display text-2xl tracking-wider text-white">NOTHING YET</p>
           <p className="text-sm text-gray-600 max-w-xs">
             Swipe right on events you&apos;re interested in — they&apos;ll appear here.

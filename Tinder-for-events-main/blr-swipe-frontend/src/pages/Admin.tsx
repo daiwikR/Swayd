@@ -214,10 +214,10 @@ export default function Admin() {
     }
   }
 
-  const tabs: { key: AdminTab; label: string; icon: string }[] = [
-    { key: 'overview', label: 'Overview', icon: '📊' },
-    { key: 'users',    label: 'Users',    icon: '👥' },
-    { key: 'events',   label: 'Events',   icon: '🎫' },
+  const tabs: { key: AdminTab; label: string }[] = [
+    { key: 'overview', label: 'Overview' },
+    { key: 'users',    label: 'Users' },
+    { key: 'events',   label: 'Events' },
   ];
 
   return (
@@ -238,7 +238,7 @@ export default function Admin() {
             background: 'transparent',
           }}
         >
-          {seeding ? 'Seeding...' : '⚡ Seed Data'}
+          {seeding ? 'Seeding...' : 'Seed Data'}
         </button>
       </div>
 
@@ -255,7 +255,7 @@ export default function Admin() {
               border: `1px solid ${tab === t.key ? '#fff' : '#2A2A2A'}`,
             }}
           >
-            {t.icon} {t.label}
+            {t.label}
           </button>
         ))}
       </div>
@@ -289,7 +289,7 @@ export default function Admin() {
                     className="px-4 py-2 rounded-lg text-xs font-semibold border transition-all"
                     style={{ borderColor: '#00D4FF', color: scraping ? '#555' : '#00D4FF', background: 'rgba(0,212,255,0.06)' }}
                   >
-                    {scraping ? 'Scraping...' : '⚡ Scrape Now'}
+                    {scraping ? 'Scraping...' : 'Scrape Now'}
                   </button>
                 </div>
                 <p className="text-xs text-gray-700">Auto-runs every 6 hours · BookMyShow + District.in</p>
@@ -304,21 +304,21 @@ export default function Admin() {
                     className="w-full py-3 rounded-xl text-sm font-semibold border transition-all"
                     style={{ borderColor: '#39FF14', color: '#39FF14', background: 'rgba(57,255,20,0.05)' }}
                   >
-                    {seeding ? 'Creating seed data...' : '⚡ Seed 10 Demo Events + lister@blr.com'}
+                    {seeding ? 'Creating seed data...' : 'Seed 10 Demo Events + lister@blr.com'}
                   </button>
                   <button
                     onClick={() => setTab('users')}
                     className="w-full py-3 rounded-xl text-sm font-semibold border transition-all"
                     style={{ borderColor: '#2A2A2A', color: '#888', background: '#1A1A1A' }}
                   >
-                    👥 Manage Users →
+                    Manage Users →
                   </button>
                   <button
                     onClick={() => setTab('events')}
                     className="w-full py-3 rounded-xl text-sm font-semibold border transition-all"
                     style={{ borderColor: '#2A2A2A', color: '#888', background: '#1A1A1A' }}
                   >
-                    🎫 Manage Events →
+                    Manage Events →
                   </button>
                 </div>
               </GlassCard>
@@ -427,7 +427,7 @@ export default function Admin() {
                         className="text-xs font-bold px-2 py-0.5 rounded-full"
                         style={{ background: cfg.bg, color: cfg.color }}
                       >
-                        {cfg.emoji} {cfg.label}
+                        {cfg.label}
                       </span>
                       <AgeRatingBadge rating={ev.age_rating} />
                       {!ev.is_active && (
@@ -441,7 +441,7 @@ export default function Admin() {
                       {ev.location} · {date} · {ev.price === 0 ? 'Free' : `₹${ev.price}`}
                     </div>
                     <div className="text-xs text-gray-700 mt-0.5">
-                      ♡ {ev.like_count} · by {ev.lister_email}
+                      {ev.like_count} likes · by {ev.lister_email}
                     </div>
                   </div>
                 </div>

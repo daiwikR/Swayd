@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Menu, ClipboardList, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { CardType } from '../types';
 import { CATEGORY_CONFIG } from '../types';
@@ -51,7 +52,7 @@ function EventRow({ card, onRemove }: { card: CardType; onRemove: () => void }) 
   return (
     <GlassEffect intensity="low" className="flex items-center justify-between gap-3 p-4">
       <div className="flex items-center gap-3 min-w-0">
-        <span className="text-lg flex-shrink-0">{cfg.emoji}</span>
+        <cfg.icon size={16} strokeWidth={1.75} className="flex-shrink-0" style={{ color: cfg.color }} />
         <div className="min-w-0">
           <div className="font-medium text-sm text-white truncate">{card.title}</div>
           <div className="text-xs text-gray-600 truncate">
@@ -63,7 +64,7 @@ function EventRow({ card, onRemove }: { card: CardType; onRemove: () => void }) 
         onClick={onRemove}
         className="text-xs text-gray-600 hover:text-white transition-colors flex-shrink-0 px-2 py-1 rounded border border-gray-700 hover:border-gray-500"
       >
-        ✕
+        <X size={14} strokeWidth={2} />
       </button>
     </GlassEffect>
   );
@@ -232,26 +233,26 @@ function ProfileDrawer({ open, onClose, likesCount, dislikesCount, upcomingCount
               <>
                 <p className="text-xs text-gray-500 uppercase tracking-widest mb-4">Account</p>
                 <button style={menuItemStyle} onClick={() => setSection('edit')}>
-                  <span>✏️ Edit Profile</span> <span style={{ color: '#555' }}>›</span>
+                  <span>Edit Profile</span> <span style={{ color: '#555' }}>›</span>
                 </button>
                 <button style={menuItemStyle} onClick={() => setSection('analytics')}>
-                  <span>📊 Analytics</span> <span style={{ color: '#555' }}>›</span>
+                  <span>Analytics</span> <span style={{ color: '#555' }}>›</span>
                 </button>
                 <button style={menuItemStyle} onClick={() => setSection('password')}>
-                  <span>🔑 Change Password</span> <span style={{ color: '#555' }}>›</span>
+                  <span>Change Password</span> <span style={{ color: '#555' }}>›</span>
                 </button>
                 <button style={menuItemStyle} onClick={() => setSection('reset')}>
-                  <span>🔄 Reset Preferences</span> <span style={{ color: '#555' }}>›</span>
+                  <span>Reset Preferences</span> <span style={{ color: '#555' }}>›</span>
                 </button>
 
                 {user?.role === 'seeker' && (
                   <button style={{ ...menuItemStyle, color: '#00D4FF' }} onClick={handleSwitchToLister} disabled={switching}>
-                    <span>🎯 {switching ? 'Switching...' : 'Become a Lister'}</span> <span style={{ color: '#555' }}>›</span>
+                    <span>{switching ? 'Switching...' : 'Become a Lister'}</span> <span style={{ color: '#555' }}>›</span>
                   </button>
                 )}
                 {user?.role === 'lister' && (
                   <button style={{ ...menuItemStyle, color: '#39FF14' }} onClick={handleSwitchToSeeker} disabled={switching}>
-                    <span>🔍 {switching ? 'Switching...' : 'Switch to Seeker'}</span> <span style={{ color: '#555' }}>›</span>
+                    <span>{switching ? 'Switching...' : 'Switch to Seeker'}</span> <span style={{ color: '#555' }}>›</span>
                   </button>
                 )}
 
@@ -344,7 +345,7 @@ function ProfileDrawer({ open, onClose, likesCount, dislikesCount, upcomingCount
                           return (
                             <div key={cat}>
                               <div className="flex items-center justify-between text-xs mb-1">
-                                <span style={{ color: '#aaa' }}>{cfg.emoji} {cfg.label}</span>
+                                <span style={{ color: '#aaa' }}>{cfg.label}</span>
                                 <span style={{ color: '#666' }}>{pct}%</span>
                               </div>
                               <div style={{ height: 4, borderRadius: 99, background: 'rgba(255,255,255,0.06)' }}>
@@ -402,7 +403,7 @@ function ProfileDrawer({ open, onClose, likesCount, dislikesCount, upcomingCount
                     This will clear your taste profile and swipe history preferences. You'll go through onboarding again to rebuild your profile.
                   </p>
                   <p style={{ color: '#FF2D78', fontSize: '0.8rem', marginBottom: '1.25rem' }}>
-                    ⚠️ Your liked events and RSVPs are preserved.
+                    Your liked events and RSVPs are preserved.
                   </p>
                   <button
                     onClick={handleResetPrefs}
@@ -492,7 +493,7 @@ export default function Profile() {
           style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.75rem', padding: '0.5rem 0.75rem', color: '#fff', fontSize: '1.1rem', cursor: 'pointer' }}
           aria-label="Open menu"
         >
-          ☰
+          <Menu size={18} strokeWidth={1.75} />
         </button>
       </div>
 
@@ -530,9 +531,9 @@ export default function Profile() {
       {/* ── Lister: prompt to explore ── */}
       {user?.role === 'lister' && (
         <GlassCard className="mt-4" style={{ borderColor: 'rgba(0,212,255,0.2)', textAlign: 'center' }}>
-          <div className="text-2xl mb-2">📋</div>
+          <ClipboardList size={22} strokeWidth={1.75} className="mx-auto mb-2 text-gray-500" />
           <div className="text-sm font-semibold text-white mb-1">You&apos;re in Lister mode</div>
-          <div className="text-xs text-gray-500">Use the Dashboard to manage your events. Open ☰ to switch to Seeker mode and start discovering events.</div>
+          <div className="text-xs text-gray-500">Use the Dashboard to manage your events. Open the menu to switch to Seeker mode and start discovering events.</div>
         </GlassCard>
       )}
 

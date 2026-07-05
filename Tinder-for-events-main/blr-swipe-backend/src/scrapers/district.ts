@@ -1,6 +1,7 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import type { EventCategory, EventSource } from '../models/Card';
+import { categorize, decodeEntities } from './categorize';
 
 export interface ScrapedEvent {
   title: string;
@@ -13,21 +14,6 @@ export interface ScrapedEvent {
   source_url: string;
   age_rating: 'ALL_AGES' | '13+' | '18+' | '21+';
   source: EventSource;
-}
-
-function mapCategory(text: string): EventCategory {
-  const t = text.toLowerCase();
-  if (t.includes('music') || t.includes('concert') || t.includes('live')) return 'music';
-  if (t.includes('comedy') || t.includes('stand-up')) return 'comedy';
-  if (t.includes('tech') || t.includes('workshop') || t.includes('startup') || t.includes('hack')) return 'tech';
-  if (t.includes('food') || t.includes('dining') || t.includes('drink') || t.includes('brunch')) return 'food';
-  if (t.includes('art') || t.includes('gallery') || t.includes('theatre') || t.includes('drama') || t.includes('film')) return 'art';
-  if (t.includes('sport') || t.includes('cricket') || t.includes('football') || t.includes('marathon')) return 'sports';
-  if (t.includes('fitness') || t.includes('yoga') || t.includes('run') || t.includes('gym')) return 'fitness';
-  if (t.includes('wellness') || t.includes('meditat') || t.includes('mindful')) return 'wellness';
-  if (t.includes('night') || t.includes('party') || t.includes('dj') || t.includes('club')) return 'nightlife';
-  if (t.includes('network') || t.includes('meetup') || t.includes('conference') || t.includes('summit')) return 'networking';
-  return 'other';
 }
 
 // District/Insider — try their actual page with realistic browser headers
@@ -60,13 +46,13 @@ async function tryDistrict(): Promise<ScrapedEvent[]> {
             const source_url = String(item.url || '');
             if (!source_url) return;
             events.push({
-              title: String(item.name).trim(),
-              description: String(item.description || '').slice(0, 300) || 'Event in Bangalore via District',
+              title: decodeEntities(String(item.name).trim()),
+              description: decodeEntities(String(item.description || '')).slice(0, 300) || 'Event in Bangalore via District',
               image_url: Array.isArray(item.image) ? item.image[0] : String(item.image || ''),
-              location: String(item.location?.name || 'Bangalore'),
+              location: decodeEntities(String(item.location?.name || 'Bangalore')),
               datetime: item.startDate ? new Date(item.startDate) : undefined,
               price: item.offers?.price ? Number(item.offers.price) : 0,
-              category: mapCategory(item.name),
+              category: categorize(item.name),
               source_url,
               age_rating: 'ALL_AGES',
               source: 'district',
@@ -100,7 +86,7 @@ async function tryDistrict(): Promise<ScrapedEvent[]> {
               location: String((ev.venue as Record<string, unknown>)?.name || 'Bangalore'),
               datetime: ev.start_time ? new Date(Number(ev.start_time) * 1000) : undefined,
               price: Number(ev.min_price || 0),
-              category: mapCategory(title),
+              category: categorize(title),
               source_url,
               age_rating: 'ALL_AGES',
               source: 'district',
@@ -143,13 +129,13 @@ async function tryAllevents(): Promise<ScrapedEvent[]> {
             if (!source_url) return;
             const d = item.startDate ? new Date(item.startDate) : undefined;
             events.push({
-              title: String(item.name).trim(),
-              description: String(item.description || '').slice(0, 300) || 'Event in Bangalore via Allevents.in',
+              title: decodeEntities(String(item.name).trim()),
+              description: decodeEntities(String(item.description || '')).slice(0, 300) || 'Event in Bangalore via Allevents.in',
               image_url: Array.isArray(item.image) ? item.image[0] : String(item.image || ''),
-              location: String(item.location?.name || item.location?.address?.streetAddress || 'Bangalore'),
+              location: decodeEntities(String(item.location?.name || item.location?.address?.streetAddress || 'Bangalore')),
               datetime: d && !isNaN(d.getTime()) ? d : undefined,
               price: item.offers?.price ? Number(item.offers.price) : 0,
-              category: mapCategory(String(item.name) + ' ' + String(item.description || '')),
+              category: categorize(String(item.name) + ' ' + String(item.description || '')),
               source_url,
               age_rating: 'ALL_AGES',
               source: 'allevents',
@@ -177,7 +163,7 @@ async function tryAllevents(): Promise<ScrapedEvent[]> {
           const dateStr = $el.find('time, [class*="date"]').first().attr('datetime') || '';
           let datetime: Date | undefined;
           if (dateStr) { const d = new Date(dateStr); if (!isNaN(d.getTime())) datetime = d; }
-          events.push({ title, description: 'Event in Bangalore via Allevents.in', image_url: img, location: venue, datetime, price: 0, category: mapCategory(title), source_url, age_rating: 'ALL_AGES', source: 'allevents' });
+          events.push({ title, description: 'Event in Bangalore via Allevents.in', image_url: img, location: venue, datetime, price: 0, category: categorize(title), source_url, age_rating: 'ALL_AGES', source: 'allevents' });
         });
         if (events.length > 0) break;
       }

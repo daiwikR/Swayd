@@ -53,12 +53,12 @@ export default function RSVPModal({ card, onClose }: RSVPModalProps) {
       });
       setSeatCode(res.data.seat_code);
       setPhase('confirmed');
-      toast.success(res.data.already_rsvped ? "You're already in! 🎉" : "RSVP confirmed! 🎉");
+      toast.success(res.data.already_rsvped ? "You're already in" : "RSVP confirmed");
     } catch (err: unknown) {
       const e = err as { response?: { data?: { error?: string } } };
       const msg = e?.response?.data?.error || 'RSVP failed';
       if (msg.includes('capacity')) {
-        toast.error('😔 This event is at full capacity');
+        toast.error('This event is at full capacity');
       } else {
         toast.error(msg);
       }
@@ -109,20 +109,20 @@ export default function RSVPModal({ card, onClose }: RSVPModalProps) {
                       className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2"
                       style={{ background: cat.bg, color: cat.color }}
                     >
-                      {cat.emoji} {cat.label}
+                      {cat.label}
                     </div>
                     <h2 className="font-display text-2xl tracking-wider text-white leading-tight">{card.title}</h2>
                     <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
-                      {card.location && <span>📍 {card.location}</span>}
+                      {card.location && <span>{card.location}</span>}
                       {card.datetime && (
                         <span>
-                          🗓 {new Date(card.datetime).toLocaleDateString('en-IN', {
+                          {new Date(card.datetime).toLocaleDateString('en-IN', {
                             weekday: 'short', month: 'short', day: 'numeric'
                           })}
                         </span>
                       )}
                       {card.price !== undefined && (
-                        <span>{card.price === 0 ? '🎟 Free' : `₹${card.price}`}</span>
+                        <span>{card.price === 0 ? 'Free' : `₹${card.price}`}</span>
                       )}
                     </div>
                   </div>
@@ -156,12 +156,12 @@ export default function RSVPModal({ card, onClose }: RSVPModalProps) {
                         className="rounded-xl p-4 text-center text-sm text-gray-400"
                         style={{ background: 'rgba(57,255,20,0.05)', border: '1px solid rgba(57,255,20,0.15)' }}
                       >
-                        🎉 No extra info needed — just confirm your spot!
+                        No extra info needed — just confirm your spot.
                       </div>
                     )}
 
                     <p className="text-xs text-gray-700 text-center">
-                      🔒 We never share your personal data with organisers
+                      We never share your personal data with organisers
                     </p>
 
                     <button
@@ -200,7 +200,7 @@ export default function RSVPModal({ card, onClose }: RSVPModalProps) {
                     <h2 className="font-display text-2xl tracking-wider text-white">{card.title}</h2>
                     {card.datetime && (
                       <p className="text-sm text-gray-400 mt-1">
-                        🗓 {new Date(card.datetime).toLocaleDateString('en-IN', {
+                        {new Date(card.datetime).toLocaleDateString('en-IN', {
                           weekday: 'long', month: 'long', day: 'numeric'
                         })}
                       </p>
@@ -223,7 +223,7 @@ export default function RSVPModal({ card, onClose }: RSVPModalProps) {
                     className="w-full py-3 rounded-xl text-sm font-bold uppercase tracking-wider transition-all"
                     style={{ background: '#fff', color: '#000' }}
                   >
-                    AWESOME! →
+                    DONE →
                   </button>
                 </div>
               )}

@@ -71,7 +71,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                     boxShadow: isSelected ? `0 0 12px ${cfg.color}44` : 'none'
                   }}
                 >
-                  <div className="text-2xl mb-1">{cfg.emoji}</div>
+                  <cfg.icon size={22} strokeWidth={1.75} className="mb-2" style={{ color: cfg.color }} />
                   <div
                     className="text-sm font-semibold"
                     style={{ color: isSelected ? cfg.color : '#ccc' }}
@@ -120,7 +120,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                       color: format === f ? '#000' : '#888'
                     }}
                   >
-                    {f === 'in-person' ? '📍 In-person' : f === 'online' ? '💻 Online' : '🌐 Both'}
+                    {f === 'in-person' ? 'In-person' : f === 'online' ? 'Online' : 'Both'}
                   </button>
                 ))}
               </div>
@@ -140,7 +140,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                       color: time === t ? '#000' : '#888'
                     }}
                   >
-                    {t === 'weekdays' ? '📅 Weekdays' : t === 'weekends' ? '🎉 Weekends' : '✨ Both'}
+                    {t === 'weekdays' ? 'Weekdays' : t === 'weekends' ? 'Weekends' : 'Both'}
                   </button>
                 ))}
               </div>

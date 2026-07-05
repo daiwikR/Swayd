@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import SwipeDeck from '../components/SwipeDeck';
 import type { CardType } from '../types';
+import { CircleAlert } from 'lucide-react';
 import api from '../api';
 
 export default function Home() {
@@ -45,7 +46,7 @@ export default function Home() {
 
       {error && (
         <div className="text-center py-16 text-gray-500">
-          <p className="text-4xl mb-3">⚠️</p>
+          <CircleAlert size={32} strokeWidth={1.5} className="mx-auto mb-3 text-gray-600" />
           <p className="text-sm">{error}</p>
         </div>
       )}

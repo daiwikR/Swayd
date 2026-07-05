@@ -1,7 +1,7 @@
 import User from '../models/User';
 import Event from '../models/Card';
-import { scrapeBookMyShow } from './bookMyShow';
-import { scrapeDistrict } from './district';
+import { scrapeAlleventsCategories } from './alleventsCategories';
+import { scrapeDistrict, ScrapedEvent } from './district';
 import type { EventSource } from '../models/Card';
 
 export let lastScrapedAt: Date | null = null;
@@ -31,7 +31,7 @@ interface UpsertResult {
 }
 
 async function upsertEvents(
-  events: (Awaited<ReturnType<typeof scrapeBookMyShow>> | Awaited<ReturnType<typeof scrapeDistrict>>)[number][],
+  events: ScrapedEvent[],
   defaultSource: EventSource,
   botId: string,
 ): Promise<UpsertResult> {
@@ -43,7 +43,30 @@ async function upsertEvents(
       if (!ev.source_url) { skipped++; continue; }
 
       const existing = await Event.findOne({ source_url: ev.source_url });
-      if (existing) { skipped++; continue; }
+      if (existing) {
+        // Self-healing: category pages know the real category, and fresh
+        // scrapes carry cleaned-up text (entity-decoded) and current details.
+        let dirty = false;
+        if (existing.category === 'other' && ev.category !== 'other') {
+          existing.category = ev.category;
+          dirty = true;
+        }
+        if (existing.is_scraped) {
+          for (const field of ['title', 'description', 'location', 'image_url'] as const) {
+            if (ev[field] && ev[field] !== existing[field]) {
+              existing[field] = ev[field];
+              dirty = true;
+            }
+          }
+          if (ev.datetime && String(ev.datetime) !== String(existing.datetime)) {
+            existing.datetime = ev.datetime;
+            dirty = true;
+          }
+        }
+        if (dirty) await existing.save();
+        skipped++;
+        continue;
+      }
 
       // Use ev.source if the scraper set it (district/allevents), else use the default
       const eventSource: EventSource = ('source' in ev && ev.source) ? (ev.source as EventSource) : defaultSource;
@@ -82,20 +105,22 @@ export async function runScraper(): Promise<{ added: number; skipped: number; so
   try {
     const botId = await getOrCreateBotUser();
 
-    const [bmsEvents, districtEvents] = await Promise.allSettled([
-      scrapeBookMyShow(),
+    // Category pages first: their events carry accurate categories, and the
+    // source_url unique index means later duplicates from the general page skip.
+    const [categoryEvents, districtEvents] = await Promise.allSettled([
+      scrapeAlleventsCategories(),
       scrapeDistrict(),
     ]);
 
-    if (bmsEvents.status === 'fulfilled' && bmsEvents.value.length > 0) {
-      const r = await upsertEvents(bmsEvents.value, 'bookmyshow', botId);
+    if (categoryEvents.status === 'fulfilled' && categoryEvents.value.length > 0) {
+      const r = await upsertEvents(categoryEvents.value, 'allevents', botId);
       totalAdded += r.added;
       totalSkipped += r.skipped;
-      sources.push(`BookMyShow: +${r.added}`);
-      console.log(`[Scraper] BMS: +${r.added} added, ${r.skipped} skipped`);
+      sources.push(`Allevents categories: +${r.added}`);
+      console.log(`[Scraper] Allevents categories: +${r.added} added, ${r.skipped} skipped`);
     } else {
-      console.warn('[Scraper] BMS: no events scraped');
-      sources.push('BookMyShow: 0');
+      console.warn('[Scraper] Allevents categories: no events scraped');
+      sources.push('Allevents categories: 0');
     }
 
     if (districtEvents.status === 'fulfilled' && districtEvents.value.length > 0) {

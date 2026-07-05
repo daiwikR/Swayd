@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ShieldAlert, Compass, ClipboardList } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { DatePicker } from '../components/ui/date-picker';
@@ -56,7 +57,7 @@ export default function Signup({ onSwitchToLogin }: Props) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
         <GlassCard className="w-full max-w-sm text-center space-y-4">
-          <div className="text-5xl">🛑</div>
+          <ShieldAlert size={40} strokeWidth={1.5} className="mx-auto text-gray-400" />
           <h2 className="font-display text-3xl text-white">HOLD ON</h2>
           <p className="text-gray-400 text-sm leading-relaxed">
             This app is for teens and adults.<br />
@@ -86,7 +87,7 @@ export default function Signup({ onSwitchToLogin }: Props) {
                 onClick={() => handleRoleSelect('seeker')}
                 className="w-full text-left"
               >
-                <div className="text-2xl mb-2">🔍</div>
+                <Compass size={22} strokeWidth={1.75} className="mb-2 text-gray-300" />
                 <div className="font-semibold text-white">Discover Events</div>
                 <div className="text-xs text-gray-500 mt-1">Swipe, explore, attend events in Bangalore</div>
               </button>
@@ -96,7 +97,7 @@ export default function Signup({ onSwitchToLogin }: Props) {
                 onClick={() => handleRoleSelect('lister')}
                 className="w-full text-left"
               >
-                <div className="text-2xl mb-2">📋</div>
+                <ClipboardList size={22} strokeWidth={1.75} className="mb-2 text-gray-300" />
                 <div className="font-semibold text-white">List Events</div>
                 <div className="text-xs text-gray-500 mt-1">Create and manage event listings</div>
               </button>
@@ -159,7 +160,7 @@ export default function Signup({ onSwitchToLogin }: Props) {
               <div>
                 <label className="block text-xs text-gray-500 mb-1.5 uppercase tracking-widest">Date of Birth</label>
                 <p className="text-xs text-gray-600 mb-2">
-                  We use your birthday to make sure you only see events that are right for you 🎉
+                  We use your birthday to make sure you only see events that are right for you
                 </p>
                 <DatePicker
                   value={dob}

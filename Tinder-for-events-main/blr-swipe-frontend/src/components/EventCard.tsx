@@ -1,5 +1,6 @@
+import { MapPin, CalendarDays } from 'lucide-react';
 import type { CardType } from '../types';
-import { CATEGORY_CONFIG } from '../types';
+import CategoryPill from './CategoryPill';
 
 const FALLBACK_IMAGES: Record<string, string> = {
   fitness:    'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80',
@@ -22,7 +23,6 @@ interface EventCardProps {
 
 export default function EventCard({ card, swipeDir }: EventCardProps) {
   const cat = card.category || 'other';
-  const cfg = CATEGORY_CONFIG[cat] || CATEGORY_CONFIG.other;
   const imgSrc = card.image_url || FALLBACK_IMAGES[cat] || FALLBACK_IMAGES.other;
 
   const formattedDate = card.datetime
@@ -74,36 +74,16 @@ export default function EventCard({ card, swipeDir }: EventCardProps) {
         </div>
       )}
 
-      {/* Top-right badges */}
+      {/* Top-right badges — only what helps a decision: personalization + age gate */}
       <div className="absolute top-4 right-4 flex flex-col items-end gap-2">
         {card.is_recommended && (
-          <div className="px-2 py-1 rounded-md text-xs font-semibold" style={{ background: 'rgba(0,0,0,0.75)', color: '#FFD166' }}>
-            ⚡ FOR YOU
+          <div className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-[0.12em] uppercase" style={{ background: '#fff', color: '#000' }}>
+            For you
           </div>
         )}
         {card.age_rating && card.age_rating !== 'ALL_AGES' && (
-          <div className="px-2 py-1 rounded-md text-xs font-semibold" style={{ background: 'rgba(255,107,53,0.3)', color: '#FF6B35', border: '1px solid rgba(255,107,53,0.5)' }}>
+          <div className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-[0.12em]" style={{ background: 'rgba(10,10,10,0.65)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)' }}>
             {card.age_rating}
-          </div>
-        )}
-        {card.source === 'bookmyshow' && (
-          <div className="px-2 py-1 rounded-md text-xs font-bold" style={{ background: 'rgba(255,45,0,0.3)', color: '#FF6B35', border: '1px solid rgba(255,107,53,0.5)' }}>
-            BMS
-          </div>
-        )}
-        {card.source === 'district' && (
-          <div className="px-2 py-1 rounded-md text-xs font-bold" style={{ background: 'rgba(0,212,255,0.2)', color: '#00D4FF', border: '1px solid rgba(0,212,255,0.4)' }}>
-            DISTRICT
-          </div>
-        )}
-        {card.source === 'allevents' && (
-          <div className="px-2 py-1 rounded-md text-xs font-bold" style={{ background: 'rgba(199,125,255,0.2)', color: '#C77DFF', border: '1px solid rgba(199,125,255,0.4)' }}>
-            EVENTS
-          </div>
-        )}
-        {card.source === 'meetup' && (
-          <div className="px-2 py-1 rounded-md text-xs font-bold" style={{ background: 'rgba(237,26,59,0.2)', color: '#ED1A3B', border: '1px solid rgba(237,26,59,0.4)' }}>
-            MEETUP
           </div>
         )}
       </div>
@@ -111,19 +91,26 @@ export default function EventCard({ card, swipeDir }: EventCardProps) {
       {/* Bottom content */}
       <div className="absolute bottom-0 left-0 right-0 p-5">
         <div className="mb-3">
-          <span className="category-pill font-bold" style={{ background: cfg.color, color: '#000' }}>
-            {cfg.emoji} {cfg.label}
-          </span>
+          <CategoryPill category={cat} />
         </div>
         <h2 className="font-display text-4xl leading-none text-white mb-3 uppercase" style={{ letterSpacing: '0.04em' }}>
           {card.title}
         </h2>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-300 mb-2">
-          {card.location && <span>📍 {card.location}</span>}
-          {formattedDate && <span>🗓 {formattedDate}</span>}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-gray-300 mb-2">
+          {card.location && (
+            <span className="inline-flex items-center gap-1.5">
+              <MapPin size={14} strokeWidth={1.75} className="text-gray-400 flex-shrink-0" />
+              {card.location}
+            </span>
+          )}
+          {formattedDate && (
+            <span className="inline-flex items-center gap-1.5">
+              <CalendarDays size={14} strokeWidth={1.75} className="text-gray-400 flex-shrink-0" />
+              {formattedDate}
+            </span>
+          )}
           {price && (
-            <span className="px-2 py-0.5 rounded-md text-xs font-semibold"
-              style={{ background: price === 'FREE' ? 'rgba(6,214,160,0.2)' : 'rgba(255,159,28,0.2)', color: price === 'FREE' ? '#06D6A0' : '#FF9F1C' }}>
+            <span className={price === 'FREE' ? 'text-xs font-bold tracking-wider text-white' : 'text-xs font-semibold text-gray-300'}>
               {price}
             </span>
           )}
